@@ -1,0 +1,44 @@
+{
+  "name": "create-interwoven-app",
+  "version": "1.0.0",
+  "description": "Create Interwoven applications with InterwovenKit wallet integration",
+  "main": "index.js",
+  "bin": {
+    "create-interwoven-app": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "echo \"Add linting when needed\"",
+    "prepare": "echo \"CLI ready for use\""
+  },
+  "keywords": [
+    "cli",
+    "template",
+    "scaffolding",
+    "InterwovenKit",
+    "Initia",
+    "blockchain",
+    "wallet"
+  ],
+  "author": "Initia",
+  "license": "MIT",
+  "files": [
+    "bin/",
+    "templates/",
+    "src/"
+  ],
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "fs-extra": "^11.0.0",
+    "inquirer": "^8.2.6",
+    "inquirer-autocomplete-prompt": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/initia-labs/create-interwoven-app"
+  }
+}
