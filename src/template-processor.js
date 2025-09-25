@@ -1,14 +1,16 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { spawn } = require('child_process');
-const { 
-  shouldProcessFile, 
-  shouldProcessDirectory, 
+import path from 'path';
+import { spawn } from 'child_process';
+
+import fs from 'fs-extra';
+
+import {
+  shouldProcessFile,
+  shouldProcessDirectory,
   createReplacements,
-  safeAsync
-} = require('./utils');
-const { NPM_CONFIG, TEMPLATE_CONFIG } = require('./constants');
-const logger = require('./logger');
+  safeAsync,
+} from './utils.js';
+import { NPM_CONFIG, TEMPLATE_CONFIG } from './constants.js';
+import logger from './logger.js';
 
 /**
  * Template processor class for handling project scaffolding
@@ -93,17 +95,20 @@ class TemplateProcessor {
    */
   async copyTemplate(targetDir) {
     logger.step('Copying template files...');
-    
+
     const [error] = await safeAsync(
-      () => fs.copy(this.templateDir, targetDir, {
-        filter: (src) => {
-          const basename = path.basename(src);
-          // Skip copying certain files that might cause issues
-          return !basename.startsWith('.DS_Store') && 
-                 !basename.includes('.tmp') &&
-                 basename !== 'Thumbs.db';
-        }
-      }),
+      () =>
+        fs.copy(this.templateDir, targetDir, {
+          filter: (src) => {
+            const basename = path.basename(src);
+            // Skip copying certain files that might cause issues
+            return (
+              !basename.startsWith('.DS_Store') &&
+              !basename.includes('.tmp') &&
+              basename !== 'Thumbs.db'
+            );
+          },
+        }),
       'copying template'
     );
 
@@ -124,7 +129,7 @@ class TemplateProcessor {
     return new Promise((resolve, reject) => {
       const child = spawn(NPM_CONFIG.installCommand, NPM_CONFIG.installArgs, {
         cwd: projectDir,
-        ...NPM_CONFIG.installOptions
+        ...NPM_CONFIG.installOptions,
       });
 
       // Handle process events
@@ -142,10 +147,13 @@ class TemplateProcessor {
       });
 
       // Timeout after 10 minutes
-      const timeout = setTimeout(() => {
-        child.kill('SIGTERM');
-        reject(new Error('npm install timed out after 10 minutes'));
-      }, 10 * 60 * 1000);
+      const timeout = setTimeout(
+        () => {
+          child.kill('SIGTERM');
+          reject(new Error('npm install timed out after 10 minutes'));
+        },
+        10 * 60 * 1000
+      );
 
       child.on('close', () => clearTimeout(timeout));
     });
@@ -180,4 +188,4 @@ class TemplateProcessor {
   }
 }
 
-module.exports = TemplateProcessor;
+export default TemplateProcessor;

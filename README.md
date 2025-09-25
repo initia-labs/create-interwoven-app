@@ -5,22 +5,26 @@ A CLI tool to scaffold new applications with [InterwovenKit](https://docs.initia
 ## Usage
 
 ### Interactive Mode (recommended)
+
 ```bash
 npx create-interwoven-app
 ```
 
 The interactive mode will guide you through:
+
 - Project name selection
 - Network type choice (mainnet/testnet/all/custom)
 - Chain selection with searchable autocomplete
 - Custom chain configuration (if needed)
 
 ### Direct Mode
+
 ```bash
 npx create-interwoven-app my-interwoven-app
 ```
 
 ### Global Installation
+
 ```bash
 # With npm
 npm install -g create-interwoven-app
@@ -104,6 +108,7 @@ The interactive mode provides powerful chain selection features:
 ### Custom Chain Configuration
 
 When selecting "Custom Chain", you'll be prompted for:
+
 - Chain ID and display name
 - RPC, REST, gRPC, and indexer URLs
 - Fee denomination and gas price
@@ -115,6 +120,7 @@ When selecting "Custom Chain", you'll be prompted for:
 ### Wallet Configuration
 
 Edit `providers/providers.tsx` to:
+
 - Switch between testnet and mainnet
 - Add custom chain configurations
 - Customize wallet connection options
@@ -122,6 +128,7 @@ Edit `providers/providers.tsx` to:
 ### Styling
 
 Modify the design by editing:
+
 - `tailwind.config.ts` - Theme and color customization
 - `app/globals.css` - Global styles
 - Component files - Individual component styling
@@ -129,6 +136,7 @@ Modify the design by editing:
 ### Content
 
 Update `app/page.tsx` to:
+
 - Change the main content
 - Add new components
 - Modify the wallet integration

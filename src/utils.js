@@ -1,6 +1,7 @@
-const path = require('path');
-const https = require('https');
-const { BINARY_EXTENSIONS, SKIP_DIRECTORIES } = require('./constants');
+import path from 'path';
+import https from 'https';
+
+import { BINARY_EXTENSIONS, SKIP_DIRECTORIES } from './constants.js';
 
 /**
  * Fetches JSON data from a URL using HTTPS
@@ -9,24 +10,26 @@ const { BINARY_EXTENSIONS, SKIP_DIRECTORIES } = require('./constants');
  */
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = '';
-      
-      res.on('data', (chunk) => {
-        data += chunk;
+    https
+      .get(url, (res) => {
+        let data = '';
+
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          try {
+            const jsonData = JSON.parse(data);
+            resolve(jsonData);
+          } catch (error) {
+            reject(new Error(`Failed to parse JSON from ${url}: ${error.message}`));
+          }
+        });
+      })
+      .on('error', (error) => {
+        reject(new Error(`Failed to fetch ${url}: ${error.message}`));
       });
-      
-      res.on('end', () => {
-        try {
-          const jsonData = JSON.parse(data);
-          resolve(jsonData);
-        } catch (error) {
-          reject(new Error(`Failed to parse JSON from ${url}: ${error.message}`));
-        }
-      });
-    }).on('error', (error) => {
-      reject(new Error(`Failed to fetch ${url}: ${error.message}`));
-    });
   });
 }
 
@@ -38,11 +41,11 @@ async function fetchAllChains() {
   try {
     const [mainnetChains, testnetChains] = await Promise.all([
       fetchJson('https://registry.initia.xyz/chains.json'),
-      fetchJson('https://registry.testnet.initia.xyz/chains.json')
+      fetchJson('https://registry.testnet.initia.xyz/chains.json'),
     ]);
 
     // Transform mainnet chains
-    const formattedMainnet = mainnetChains.map(chain => ({
+    const formattedMainnet = mainnetChains.map((chain) => ({
       name: `${chain.pretty_name || chain.chain_name} (${chain.chain_id})`,
       value: {
         chainId: chain.chain_id,
@@ -50,14 +53,15 @@ async function fetchAllChains() {
         prettyName: chain.pretty_name || chain.chain_name,
         networkType: 'mainnet',
         network: 'mainnet',
-        description: chain.description || ''
+        description: chain.description || '',
       },
       short: chain.pretty_name || chain.chain_name,
-      searchableText: `${chain.pretty_name || chain.chain_name} ${chain.chain_id} ${chain.description || ''}`.toLowerCase()
+      searchableText:
+        `${chain.pretty_name || chain.chain_name} ${chain.chain_id} ${chain.description || ''}`.toLowerCase(),
     }));
 
     // Transform testnet chains
-    const formattedTestnet = testnetChains.map(chain => ({
+    const formattedTestnet = testnetChains.map((chain) => ({
       name: `${chain.pretty_name || chain.chain_name} (${chain.chain_id})`,
       value: {
         chainId: chain.chain_id,
@@ -65,10 +69,11 @@ async function fetchAllChains() {
         prettyName: chain.pretty_name || chain.chain_name,
         networkType: 'testnet',
         network: 'testnet',
-        description: chain.description || ''
+        description: chain.description || '',
       },
       short: chain.pretty_name || chain.chain_name,
-      searchableText: `${chain.pretty_name || chain.chain_name} ${chain.chain_id} ${chain.description || ''}`.toLowerCase()
+      searchableText:
+        `${chain.pretty_name || chain.chain_name} ${chain.chain_id} ${chain.description || ''}`.toLowerCase(),
     }));
 
     // Sort chains alphabetically by name
@@ -78,44 +83,51 @@ async function fetchAllChains() {
     return {
       mainnet: formattedMainnet,
       testnet: formattedTestnet,
-      all: [...formattedMainnet, ...formattedTestnet]
+      all: [...formattedMainnet, ...formattedTestnet],
     };
   } catch (error) {
     // Fallback to original hardcoded options if fetching fails
-    console.warn('Warning: Failed to fetch chains from registry, using fallback options:', error.message);
-    
-    const fallbackMainnet = [{
-      name: 'Initia (interwoven-1)',
-      value: {
-        chainId: 'interwoven-1',
-        chainName: 'initia',
-        prettyName: 'Initia',
-        networkType: 'mainnet',
-        network: 'mainnet',
-        description: 'Initia Mainnet'
-      },
-      short: 'Initia',
-      searchableText: 'initia interwoven-1 initia mainnet'
-    }];
+    console.warn(
+      'Warning: Failed to fetch chains from registry, using fallback options:',
+      error.message
+    );
 
-    const fallbackTestnet = [{
-      name: 'Initia (initiation-2)',
-      value: {
-        chainId: 'initiation-2',
-        chainName: 'initia',
-        prettyName: 'Initia',
-        networkType: 'testnet',
-        network: 'testnet',
-        description: 'Initia Testnet'
+    const fallbackMainnet = [
+      {
+        name: 'Initia (interwoven-1)',
+        value: {
+          chainId: 'interwoven-1',
+          chainName: 'initia',
+          prettyName: 'Initia',
+          networkType: 'mainnet',
+          network: 'mainnet',
+          description: 'Initia Mainnet',
+        },
+        short: 'Initia',
+        searchableText: 'initia interwoven-1 initia mainnet',
       },
-      short: 'Initia',
-      searchableText: 'initia initiation-2 initia testnet'
-    }];
+    ];
+
+    const fallbackTestnet = [
+      {
+        name: 'Initia (initiation-2)',
+        value: {
+          chainId: 'initiation-2',
+          chainName: 'initia',
+          prettyName: 'Initia',
+          networkType: 'testnet',
+          network: 'testnet',
+          description: 'Initia Testnet',
+        },
+        short: 'Initia',
+        searchableText: 'initia initiation-2 initia testnet',
+      },
+    ];
 
     return {
       mainnet: fallbackMainnet,
       testnet: fallbackTestnet,
-      all: [...fallbackMainnet, ...fallbackTestnet]
+      all: [...fallbackMainnet, ...fallbackTestnet],
     };
   }
 }
@@ -130,22 +142,24 @@ function filterChains(chains, input) {
   if (!input || input.trim() === '') {
     return chains;
   }
-  
+
   const searchTerm = input.toLowerCase().trim();
-  return chains.filter(chain => {
+  return chains.filter((chain) => {
     const chainId = chain.value.chainId.toLowerCase();
     const chainName = chain.value.chainName.toLowerCase();
     const prettyName = chain.value.prettyName.toLowerCase();
     const description = chain.value.description.toLowerCase();
     const displayName = chain.name.toLowerCase();
-    
+
     // Search across multiple fields for better matching
-    return chainId.includes(searchTerm) ||
-           chainName.includes(searchTerm) ||
-           prettyName.includes(searchTerm) ||
-           description.includes(searchTerm) ||
-           displayName.includes(searchTerm) ||
-           chain.searchableText.includes(searchTerm);
+    return (
+      chainId.includes(searchTerm) ||
+      chainName.includes(searchTerm) ||
+      prettyName.includes(searchTerm) ||
+      description.includes(searchTerm) ||
+      displayName.includes(searchTerm) ||
+      chain.searchableText.includes(searchTerm)
+    );
   });
 }
 
@@ -156,7 +170,7 @@ function filterChains(chains, input) {
  */
 function kebabCase(str) {
   if (!str || typeof str !== 'string') return '';
-  
+
   return str
     .trim()
     .replace(/([a-z])([A-Z])/g, '$1-$2')
@@ -173,7 +187,7 @@ function kebabCase(str) {
  */
 function pascalCase(str) {
   if (!str || typeof str !== 'string') return '';
-  
+
   return str
     .trim()
     .replace(/[-_\s]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ''))
@@ -188,7 +202,7 @@ function pascalCase(str) {
  */
 function camelCase(str) {
   if (!str || typeof str !== 'string') return '';
-  
+
   const pascal = pascalCase(str);
   return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
@@ -207,14 +221,9 @@ function shouldProcessFile(filePath, fileName) {
   }
 
   // Skip files that are likely binary based on name patterns
-  const binaryPatterns = [
-    /\.(lock|log)$/i,
-    /^\.DS_Store$/i,
-    /^Thumbs\.db$/i,
-    /\.(tmp|temp)$/i
-  ];
+  const binaryPatterns = [/\.(lock|log)$/i, /^\.DS_Store$/i, /^Thumbs\.db$/i, /\.(tmp|temp)$/i];
 
-  if (binaryPatterns.some(pattern => pattern.test(fileName))) {
+  if (binaryPatterns.some((pattern) => pattern.test(fileName))) {
     return false;
   }
 
@@ -248,10 +257,10 @@ function shouldProcessDirectory(dirName) {
  */
 function createReplacements(projectName, networkOrChainData = 'testnet') {
   const cleanName = projectName.replace(/^@[^/]+\//, ''); // Remove scope from scoped packages
-  
+
   // Handle both old string format and new chain data object format
   let networkConfig, networkConfigImport, chainId, chainName, prettyName, isCustomChain;
-  
+
   if (typeof networkOrChainData === 'object' && networkOrChainData !== null) {
     // New format: chain data object
     const chainData = networkOrChainData;
@@ -259,7 +268,7 @@ function createReplacements(projectName, networkOrChainData = 'testnet') {
     chainName = chainData.chainName || 'initia';
     prettyName = chainData.prettyName || 'Initia';
     isCustomChain = Boolean(chainData.customChain);
-    
+
     // Handle custom chain configuration
     if (chainData.customChain) {
       const customChain = chainData.customChain;
@@ -286,7 +295,7 @@ function createReplacements(projectName, networkOrChainData = 'testnet') {
     prettyName = 'Initia';
     isCustomChain = false;
   }
-  
+
   return {
     PROJECT_NAME: projectName,
     PROJECT_NAME_KEBAB: kebabCase(cleanName),
@@ -298,7 +307,7 @@ function createReplacements(projectName, networkOrChainData = 'testnet') {
     CHAIN_ID: chainId,
     CHAIN_NAME: chainName,
     CHAIN_PRETTY_NAME: prettyName,
-    IS_CUSTOM_CHAIN: isCustomChain ? 'true' : 'false'
+    IS_CUSTOM_CHAIN: isCustomChain ? 'true' : 'false',
   };
 }
 
@@ -308,7 +317,7 @@ function createReplacements(projectName, networkOrChainData = 'testnet') {
  * @returns {Promise} - Promise that resolves after the delay
  */
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -327,7 +336,7 @@ async function safeAsync(fn, context = 'operation') {
   }
 }
 
-module.exports = {
+export {
   fetchJson,
   fetchAllChains,
   filterChains,
@@ -338,5 +347,5 @@ module.exports = {
   shouldProcessDirectory,
   createReplacements,
   delay,
-  safeAsync
+  safeAsync,
 };

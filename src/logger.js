@@ -1,4 +1,4 @@
-const chalk = require('chalk');
+import chalk from 'chalk';
 
 /**
  * Logger utility with colored output and different log levels
@@ -81,7 +81,7 @@ class Logger {
         if (errorMessage) {
           this.error(errorMessage);
         }
-      }
+      },
     };
   }
 
@@ -110,7 +110,10 @@ class Logger {
    */
   successInstructions(projectName, projectPath) {
     console.log();
-    console.log(chalk.green('🎉 Success!'), `Created ${chalk.bold(projectName)} at ${chalk.gray(projectPath)}`);
+    console.log(
+      chalk.green('🎉 Success!'),
+      `Created ${chalk.bold(projectName)} at ${chalk.gray(projectPath)}`
+    );
     console.log();
     console.log('We suggest that you begin by typing:');
     console.log();
@@ -151,5 +154,6 @@ class Logger {
 }
 
 // Export a singleton instance
-module.exports = new Logger();
-module.exports.Logger = Logger;
+const logger = new Logger();
+export default logger;
+export { Logger };

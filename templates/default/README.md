@@ -13,11 +13,13 @@ A modern web application built with [InterwovenKit](https://docs.initia.xyz/inte
 ## Getting Started
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Start the development server:**
+
    ```bash
    npm run dev
    ```
@@ -43,6 +45,7 @@ A modern web application built with [InterwovenKit](https://docs.initia.xyz/inte
 ### InterwovenKit Integration
 
 This project uses InterwovenKit to provide:
+
 - Wallet connection and management
 - Transaction signing
 - Account information display
@@ -51,6 +54,7 @@ This project uses InterwovenKit to provide:
 ### Wallet Connection
 
 The main page includes a wallet connection button that:
+
 - Opens the Initia Wallet connection modal
 - Displays connected wallet information
 - Provides access to wallet management features
@@ -60,6 +64,7 @@ The main page includes a wallet connection button that:
 ### Styling
 
 The project uses Tailwind CSS for styling. You can customize the design by:
+
 - Modifying `tailwind.config.ts` for theme customization
 - Updating `app/globals.css` for global styles
 - Editing component styles in individual files
@@ -67,6 +72,7 @@ The project uses Tailwind CSS for styling. You can customize the design by:
 ### InterwovenKit Configuration
 
 Wallet configuration is handled in `providers/providers.tsx`. You can:
+
 - Change network settings (testnet/mainnet)
 - Customize wallet connector options
 - Add additional providers
@@ -81,11 +87,13 @@ Wallet configuration is handled in `providers/providers.tsx`. You can:
 ## Deployment
 
 This project can be deployed on:
+
 - [Vercel](https://vercel.com) (recommended)
 - [Netlify](https://netlify.com)
 - Any platform that supports Next.js
 
 For Vercel deployment:
+
 ```bash
 npm run build
 # or deploy directly with Vercel CLI

@@ -4,40 +4,47 @@
  */
 
 // Core functionality
-const TemplateProcessor = require('./template-processor');
-const { createProject } = require('./create-project'); // Legacy support
-
+import TemplateProcessor from './template-processor.js';
 // Utilities
-const validators = require('./validators');
-const utils = require('./utils');
-const logger = require('./logger');
-const constants = require('./constants');
+import * as validators from './validators.js';
+import * as utils from './utils.js';
+import logger from './logger.js';
+import * as constants from './constants.js';
 
 // Main exports
-module.exports = {
+export {
   // Core classes
   TemplateProcessor,
-  
-  // Legacy function (deprecated)
-  createProject,
-  
+
   // Utility modules
   validators,
   utils,
   logger,
   constants,
-  
-  // Quick access to commonly used functions
-  validateProjectName: validators.validateProjectName,
-  validateTargetDirectory: validators.validateTargetDirectory,
-  validateTemplate: validators.validateTemplate,
-  
-  // String utilities
-  kebabCase: utils.kebabCase,
-  pascalCase: utils.pascalCase,
-  camelCase: utils.camelCase,
-  
-  // Constants
-  TEMPLATE_CONFIG: constants.TEMPLATE_CONFIG,
-  NPM_CONFIG: constants.NPM_CONFIG
 };
+
+// Named exports for convenience
+export const { validateProjectName, validateTargetDirectory, validateTemplate } = validators;
+
+export const {
+  kebabCase,
+  pascalCase,
+  camelCase,
+  fetchJson,
+  fetchAllChains,
+  filterChains,
+  shouldProcessFile,
+  shouldProcessDirectory,
+  createReplacements,
+  delay,
+  safeAsync,
+} = utils;
+
+export const {
+  TEMPLATE_CONFIG,
+  NPM_CONFIG,
+  BINARY_EXTENSIONS,
+  SKIP_DIRECTORIES,
+  VALIDATION_RULES,
+  CHAIN_REGISTRY,
+} = constants;

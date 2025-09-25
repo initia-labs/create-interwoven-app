@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 
-const { program } = require('commander');
-const path = require('path');
-const inquirer = require('inquirer');
+import path from 'path';
+
+import { program } from 'commander';
+import inquirer from 'inquirer';
+import inquirerAutocomplete from 'inquirer-autocomplete-prompt';
 
 // Register autocomplete prompt plugin
-inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
+inquirer.registerPrompt('autocomplete', inquirerAutocomplete);
 
 // Import our refactored modules
-const { validateProjectName, validateTargetDirectory, validateTemplate } = require('../src/validators');
-const { TEMPLATE_CONFIG } = require('../src/constants');
-const { fetchAllChains, filterChains } = require('../src/utils');
-const TemplateProcessor = require('../src/template-processor');
-const logger = require('../src/logger');
+import {
+  validateProjectName,
+  validateTargetDirectory,
+  validateTemplate,
+} from '../src/validators.js';
+import { TEMPLATE_CONFIG } from '../src/constants.js';
+import { fetchAllChains, filterChains } from '../src/utils.js';
+import TemplateProcessor from '../src/template-processor.js';
+import logger from '../src/logger.js';
 
 /**
  * Main CLI application
@@ -45,7 +51,9 @@ async function main() {
         // Validate network option (keep for backward compatibility)
         if (options.network && !['testnet', 'mainnet'].includes(options.network)) {
           logger.error('Invalid network option. Please use "testnet" or "mainnet".');
-          logger.info('For more network options, use the interactive mode by running without arguments.');
+          logger.info(
+            'For more network options, use the interactive mode by running without arguments.'
+          );
           process.exit(1);
         }
 
@@ -85,7 +93,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -97,7 +105,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -109,7 +117,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -126,7 +134,7 @@ async function promptCustomChain() {
           return 'Please enter a valid URL';
         }
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -143,7 +151,7 @@ async function promptCustomChain() {
           return 'Please enter a valid URL';
         }
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -160,7 +168,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -177,7 +185,7 @@ async function promptCustomChain() {
           return 'Please enter a valid URL';
         }
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -189,7 +197,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'input',
@@ -206,7 +214,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => parseFloat(input.toString().trim())
+      filter: (input) => parseFloat(input.toString().trim()),
     },
     {
       type: 'input',
@@ -222,7 +230,7 @@ async function promptCustomChain() {
         }
         return true;
       },
-      filter: (input) => input.trim()
+      filter: (input) => input.trim(),
     },
     {
       type: 'list',
@@ -230,10 +238,10 @@ async function promptCustomChain() {
       message: 'Network type:',
       choices: [
         { name: 'Mainnet', value: 'mainnet' },
-        { name: 'Testnet', value: 'testnet' }
+        { name: 'Testnet', value: 'testnet' },
       ],
-      default: 'testnet'
-    }
+      default: 'testnet',
+    },
   ]);
 
   // Create the custom chain object
@@ -251,17 +259,19 @@ async function promptCustomChain() {
         rpc: [{ address: customChainAnswers.rpcUrl }],
         rest: [{ address: customChainAnswers.restUrl }],
         grpc: [{ address: customChainAnswers.grpcUrl }],
-        indexer: [{ address: customChainAnswers.indexerUrl }]
+        indexer: [{ address: customChainAnswers.indexerUrl }],
       },
       fees: {
-        fee_tokens: [{
-          denom: customChainAnswers.feeDenom,
-          fixed_min_gas_price: customChainAnswers.gasPrice
-        }]
+        fee_tokens: [
+          {
+            denom: customChainAnswers.feeDenom,
+            fixed_min_gas_price: customChainAnswers.gasPrice,
+          },
+        ],
       },
       bech32_prefix: customChainAnswers.bech32Prefix,
-      network_type: customChainAnswers.networkType
-    }
+      network_type: customChainAnswers.networkType,
+    },
   };
 
   return customChainData;
@@ -278,7 +288,7 @@ async function runInteractiveFlow() {
     // Fetch available chains
     logger.info('Fetching available networks...');
     const chainsData = await fetchAllChains();
-    
+
     // Step 1: Get project name
     const projectAnswer = await inquirer.prompt([
       {
@@ -295,8 +305,8 @@ async function runInteractiveFlow() {
           }
           return true;
         },
-        filter: (input) => input.trim()
-      }
+        filter: (input) => input.trim(),
+      },
     ]);
 
     // Step 2: Choose network type
@@ -309,10 +319,10 @@ async function runInteractiveFlow() {
           { name: 'Mainnet', value: 'mainnet' },
           { name: 'Testnet', value: 'testnet' },
           { name: 'All', value: 'all' },
-          { name: 'Custom Chain', value: 'custom' }
+          { name: 'Custom Chain', value: 'custom' },
         ],
-        default: 'testnet'
-      }
+        default: 'testnet',
+      },
     ]);
 
     // Step 3: Handle chain selection based on network type
@@ -322,7 +332,7 @@ async function runInteractiveFlow() {
       // Custom chain configuration
       logger.newLine();
       chainData = await promptCustomChain();
-      
+
       logger.newLine();
       logger.info(`Custom chain configured: ${chainData.prettyName} (${chainData.chainId})`);
       logger.info(`Network Type: ${chainData.networkType}`);
@@ -335,7 +345,7 @@ async function runInteractiveFlow() {
       // Standard chain selection with search
       let availableChains;
       let searchMessage;
-      
+
       switch (networkTypeAnswer.networkType) {
         case 'testnet':
           availableChains = chainsData.testnet;
@@ -351,15 +361,20 @@ async function runInteractiveFlow() {
       }
 
       if (availableChains.length === 0) {
-        logger.error(`No ${networkTypeAnswer.networkType} chains available. Please try again later.`);
+        logger.error(
+          `No ${networkTypeAnswer.networkType} chains available. Please try again later.`
+        );
         process.exit(1);
       }
 
       // Find default chain (prefer initiation-2 for testnet, interwoven-1 for mainnet)
-      const defaultChain = availableChains.find(chain => 
-        (networkTypeAnswer.networkType === 'testnet' && chain.value.chainId === 'initiation-2') ||
-        (networkTypeAnswer.networkType === 'mainnet' && chain.value.chainId === 'interwoven-1')
-      ) || availableChains[0];
+      const defaultChain =
+        availableChains.find(
+          (chain) =>
+            (networkTypeAnswer.networkType === 'testnet' &&
+              chain.value.chainId === 'initiation-2') ||
+            (networkTypeAnswer.networkType === 'mainnet' && chain.value.chainId === 'interwoven-1')
+        ) || availableChains[0];
 
       const chainAnswer = await inquirer.prompt([
         {
@@ -372,14 +387,16 @@ async function runInteractiveFlow() {
           default: defaultChain.value,
           pageSize: 8,
           suggestOnly: false,
-          loop: false
-        }
+          loop: false,
+        },
       ]);
 
       chainData = chainAnswer.chainData;
 
       logger.newLine();
-      logger.info(`Selected: ${chainData.prettyName} (${chainData.chainId}) - ${chainData.networkType}`);
+      logger.info(
+        `Selected: ${chainData.prettyName} (${chainData.chainId}) - ${chainData.networkType}`
+      );
       if (chainData.description) {
         logger.info(`Description: ${chainData.description}`);
       }
@@ -391,9 +408,8 @@ async function runInteractiveFlow() {
       template: TEMPLATE_CONFIG.defaultTemplate,
       verbose: false,
       chainData: chainData,
-      network: chainData.network // Maintain backward compatibility
+      network: chainData.network, // Maintain backward compatibility
     });
-
   } catch (error) {
     logger.error('Interactive flow failed:', error.message);
     process.exit(1);
@@ -420,10 +436,7 @@ async function createInterwovenApp(projectName, options) {
   }
 
   // Validate template
-  const templateValidation = await validateTemplate(
-    options.template, 
-    TEMPLATE_CONFIG.templatesDir
-  );
+  const templateValidation = await validateTemplate(options.template, TEMPLATE_CONFIG.templatesDir);
   if (!templateValidation.isValid) {
     logger.validationError(templateValidation, 'Template validation');
     process.exit(1);
@@ -431,7 +444,7 @@ async function createInterwovenApp(projectName, options) {
 
   // Set up target directory
   const targetDir = path.resolve(process.cwd(), projectName);
-  
+
   // Validate target directory
   const dirValidation = await validateTargetDirectory(targetDir);
   if (!dirValidation.isValid) {
@@ -444,7 +457,11 @@ async function createInterwovenApp(projectName, options) {
   logger.newLine();
 
   const processor = new TemplateProcessor(options.template);
-  await processor.createProject(projectName, targetDir, options.chainData || options.network || 'testnet');
+  await processor.createProject(
+    projectName,
+    targetDir,
+    options.chainData || options.network || 'testnet'
+  );
 
   // Show success message
   logger.successInstructions(projectName, targetDir);

@@ -1,5 +1,8 @@
-const path = require('path');
-const { VALIDATION_RULES } = require('./constants');
+import path from 'path';
+
+import fs from 'fs-extra';
+
+import { VALIDATION_RULES } from './constants.js';
 
 /**
  * Validates a project name according to npm naming conventions
@@ -13,7 +16,7 @@ function validateProjectName(projectName) {
   if (!projectName || typeof projectName !== 'string') {
     return {
       isValid: false,
-      error: 'Project name is required'
+      error: 'Project name is required',
     };
   }
 
@@ -23,14 +26,14 @@ function validateProjectName(projectName) {
   if (trimmedName.length < minLength) {
     return {
       isValid: false,
-      error: 'Project name cannot be empty'
+      error: 'Project name cannot be empty',
     };
   }
 
   if (trimmedName.length > maxLength) {
     return {
       isValid: false,
-      error: `Project name cannot exceed ${maxLength} characters`
+      error: `Project name cannot exceed ${maxLength} characters`,
     };
   }
 
@@ -38,16 +41,19 @@ function validateProjectName(projectName) {
   if (!allowedChars.test(trimmedName)) {
     return {
       isValid: false,
-      error: 'Project name can only contain letters, numbers, hyphens, underscores, dots, and forward slashes'
+      error:
+        'Project name can only contain letters, numbers, hyphens, underscores, dots, and forward slashes',
     };
   }
 
   // Check for reserved names (case insensitive)
   const lowerName = trimmedName.toLowerCase();
-  if (reservedNames.some(reserved => lowerName === reserved || lowerName.startsWith(reserved + '.'))) {
+  if (
+    reservedNames.some((reserved) => lowerName === reserved || lowerName.startsWith(reserved + '.'))
+  ) {
     return {
       isValid: false,
-      error: `"${trimmedName}" is a reserved name and cannot be used as a project name`
+      error: `"${trimmedName}" is a reserved name and cannot be used as a project name`,
     };
   }
 
@@ -57,23 +63,27 @@ function validateProjectName(projectName) {
     if (!scopedMatch) {
       return {
         isValid: false,
-        error: 'Scoped package names must be in format @scope/package-name'
+        error: 'Scoped package names must be in format @scope/package-name',
       };
     }
   }
 
   // Check for leading/trailing periods or hyphens
-  if (trimmedName.startsWith('.') || trimmedName.startsWith('-') || 
-      trimmedName.endsWith('.') || trimmedName.endsWith('-')) {
+  if (
+    trimmedName.startsWith('.') ||
+    trimmedName.startsWith('-') ||
+    trimmedName.endsWith('.') ||
+    trimmedName.endsWith('-')
+  ) {
     return {
       isValid: false,
-      error: 'Project name cannot start or end with a period or hyphen'
+      error: 'Project name cannot start or end with a period or hyphen',
     };
   }
 
   return {
     isValid: true,
-    error: null
+    error: null,
   };
 }
 
@@ -83,29 +93,28 @@ function validateProjectName(projectName) {
  * @param {Function} fs - File system module (for testing)
  * @returns {Promise<Object>} - Validation result
  */
-async function validateTargetDirectory(targetDir, fs = require('fs-extra')) {
+async function validateTargetDirectory(targetDir, fsModule = fs) {
   try {
-    const exists = await fs.pathExists(targetDir);
-    
+    const exists = await fsModule.pathExists(targetDir);
+
     if (!exists) {
       return { isValid: true, error: null };
     }
 
-    const files = await fs.readdir(targetDir);
-    
+    const files = await fsModule.readdir(targetDir);
+
     if (files.length === 0) {
       return { isValid: true, error: null };
     }
 
     return {
       isValid: false,
-      error: `Directory "${path.basename(targetDir)}" is not empty. Please choose a different name or remove the existing directory.`
+      error: `Directory "${path.basename(targetDir)}" is not empty. Please choose a different name or remove the existing directory.`,
     };
-
   } catch (error) {
     return {
       isValid: false,
-      error: `Unable to access directory: ${error.message}`
+      error: `Unable to access directory: ${error.message}`,
     };
   }
 }
@@ -117,11 +126,11 @@ async function validateTargetDirectory(targetDir, fs = require('fs-extra')) {
  * @param {Function} fs - File system module (for testing)
  * @returns {Promise<Object>} - Validation result
  */
-async function validateTemplate(templateName, templatesDir, fs = require('fs-extra')) {
+async function validateTemplate(templateName, templatesDir, fsModule = fs) {
   if (!templateName || typeof templateName !== 'string') {
     return {
       isValid: false,
-      error: 'Template name is required'
+      error: 'Template name is required',
     };
   }
 
@@ -129,43 +138,38 @@ async function validateTemplate(templateName, templatesDir, fs = require('fs-ext
   if (templateName.includes('..') || templateName.includes('/') || templateName.includes('\\')) {
     return {
       isValid: false,
-      error: 'Invalid template name. Template names cannot contain path separators.'
+      error: 'Invalid template name. Template names cannot contain path separators.',
     };
   }
 
   const templateDir = path.join(templatesDir, templateName);
-  
+
   try {
-    const exists = await fs.pathExists(templateDir);
-    
+    const exists = await fsModule.pathExists(templateDir);
+
     if (!exists) {
       return {
         isValid: false,
-        error: `Template "${templateName}" not found`
+        error: `Template "${templateName}" not found`,
       };
     }
 
-    const stat = await fs.stat(templateDir);
-    
+    const stat = await fsModule.stat(templateDir);
+
     if (!stat.isDirectory()) {
       return {
         isValid: false,
-        error: `Template "${templateName}" is not a valid directory`
+        error: `Template "${templateName}" is not a valid directory`,
       };
     }
 
     return { isValid: true, error: null };
-
   } catch (error) {
     return {
       isValid: false,
-      error: `Unable to access template: ${error.message}`
+      error: `Unable to access template: ${error.message}`,
     };
   }
 }
 
-module.exports = {
-  validateProjectName,
-  validateTargetDirectory,
-  validateTemplate
-};
+export { validateProjectName, validateTargetDirectory, validateTemplate };
