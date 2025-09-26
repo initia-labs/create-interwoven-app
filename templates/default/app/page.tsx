@@ -3,15 +3,27 @@
 import { useState, useEffect } from "react"
 import { useInterwovenKit } from "@initia/interwovenkit-react"
 import { truncate } from "@initia/utils"
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
 
 export default function HomePage() {
-  const { address, openConnect, openWallet } = useInterwovenKit()
+  const { address, openConnect, openWallet, openBridge, requestTxBlock } = useInterwovenKit()
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isSendingTx, setIsSendingTx] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string>("")
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const showErrorToast = (message: string) => {
+    setToastMessage(message)
+    setShowToast(true)
+    setTimeout(() => {
+      setShowToast(false)
+    }, 4000) // Disappear after 4 seconds
+  }
 
   const handleCopyAll = async () => {
     if (mounted && navigator?.clipboard) {
@@ -20,8 +32,39 @@ export default function HomePage() {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       } catch (error) {
-        console.error('Failed to copy:', error)
+        // Silent fail for clipboard copy
       }
+    }
+  }
+
+  const handleSendToSelf = async () => {
+    if (!address) return
+
+    setIsSendingTx(true)
+    try {
+      // Create a send transaction to self for 1 INIT (1000000 uinit)
+      const messages = [{
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: MsgSend.fromPartial({
+          fromAddress: address,
+          toAddress: address,
+          amount: [{ amount: "1000000", denom: "uinit" }], // 1 INIT
+        }),
+      }]
+
+      const { transactionHash } = await requestTxBlock({ messages })
+    } catch (error) {
+      showErrorToast(error instanceof Error ? error.message : "Transaction failed. Please try again.")
+    } finally {
+      setIsSendingTx(false)
+    }
+  }
+
+  const handleOpenBridge = async () => {
+    try {
+      openBridge()
+    } catch (error) {
+      showErrorToast("Failed to open bridge. Please try again.")
     }
   }
 
@@ -41,18 +84,41 @@ export default function HomePage() {
             <div>
               {!address ? (
                 <button
-                  onClick={openConnect}
+                  onClick={() => openConnect()}
                   className="px-4 py-1.5 bg-white text-black font-medium text-sm rounded-lg hover:bg-gray-100 transition-colors duration-200"
                 >
                   Connect Wallet
                 </button>
               ) : (
-                <button
-                  onClick={openWallet}
-                  className="px-4 py-1.5 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors duration-200"
-                >
-                  {truncate(address)}
-                </button>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="https://v1.app.testnet.initia.xyz/faucet"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-white text-black text-sm rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
+                  >
+                    Faucet
+                  </a>
+                  <button
+                    onClick={handleSendToSelf}
+                    disabled={isSendingTx}
+                    className="px-3 py-1.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSendingTx ? "Sending..." : "Send 1 INIT"}
+                  </button>
+                  <button
+                    onClick={handleOpenBridge}
+                    className="px-3 py-1.5 bg-gray-400 text-white text-sm rounded-lg hover:bg-gray-500 transition-colors duration-200 font-medium"
+                  >
+                    Bridge
+                  </button>
+                  <button
+                    onClick={openWallet}
+                    className="px-4 py-1.5 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    {truncate(address)}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -179,6 +245,28 @@ export default function HomePage() {
           </p>
         </div>
       </main>
+
+      {/* Error Toast */}
+      {showToast && (
+        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 duration-300">
+          <div className="bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-sm">
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm font-medium">{toastMessage}</p>
+              <button
+                onClick={() => setShowToast(false)}
+                className="ml-auto text-white hover:text-gray-200 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
