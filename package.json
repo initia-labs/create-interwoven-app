@@ -1,6 +1,6 @@
 {
   "name": "create-interwoven-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create Interwoven applications with InterwovenKit wallet integration",
   "type": "module",
   "main": "src/index.js",
