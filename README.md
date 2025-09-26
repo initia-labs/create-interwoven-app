@@ -1,6 +1,6 @@
 # create-interwoven-app
 
-A CLI tool to scaffold new applications with [InterwovenKit](https://docs.initia.xyz/interwovenkit) wallet integration and Initia branding.
+A CLI tool to scaffold new applications with [InterwovenKit](https://docs.initia.xyz/interwovenkit) and Initia Wallet integration
 
 ## Usage
 
@@ -43,7 +43,6 @@ The generated application includes:
 - 🎨 **Tailwind CSS** for styling
 - 📱 **Responsive Design** similar to modern dApp interfaces
 - 🔒 **TypeScript** for type safety
-- 🌐 **Initia Branding** and design system
 
 ## Generated Project Structure
 

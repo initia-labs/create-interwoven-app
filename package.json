@@ -8,8 +8,8 @@
     "create-interwoven-app": "./bin/index.js"
   },
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write \"**/*.{js,mjs,json,md}\"",
