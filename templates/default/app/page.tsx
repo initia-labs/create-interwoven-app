@@ -6,7 +6,7 @@ import { truncate } from "@initia/utils"
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
 
 export default function HomePage() {
-  const { address, openConnect, openWallet, openBridge, requestTxBlock } = useInterwovenKit()
+  const { address, username, openConnect, openWallet, openBridge, requestTxBlock, chainId } = useInterwovenKit()
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isSendingTx, setIsSendingTx] = useState(false)
@@ -91,14 +91,17 @@ export default function HomePage() {
                 </button>
               ) : (
                 <div className="flex items-center gap-3">
-                  <a
-                    href="https://v1.app.testnet.initia.xyz/faucet"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 bg-white text-black text-sm rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
-                  >
-                    Faucet
-                  </a>
+                  {/* Faucet button - only show for initiation-2 testnet */}
+                  {chainId === "initiation-2" && (
+                    <a
+                      href="https://v1.app.testnet.initia.xyz/faucet"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-white text-black text-sm rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
+                    >
+                      Faucet
+                    </a>
+                  )}
                   <button
                     onClick={handleSendToSelf}
                     disabled={isSendingTx}
@@ -116,7 +119,8 @@ export default function HomePage() {
                     onClick={openWallet}
                     className="px-4 py-1.5 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors duration-200"
                   >
-                    {truncate(address)}
+                    {/* Show username if available, otherwise show truncated address */}
+                    {username || truncate(address)}
                   </button>
                 </div>
               )}

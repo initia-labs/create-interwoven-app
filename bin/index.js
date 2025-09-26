@@ -318,7 +318,6 @@ async function runInteractiveFlow() {
         choices: [
           { name: 'Mainnet', value: 'mainnet' },
           { name: 'Testnet', value: 'testnet' },
-          { name: 'All', value: 'all' },
           { name: 'Custom Chain', value: 'custom' },
         ],
         default: 'testnet',
@@ -355,9 +354,6 @@ async function runInteractiveFlow() {
           availableChains = chainsData.mainnet;
           searchMessage = 'Search mainnet chains by name or chain ID:';
           break;
-        default:
-          availableChains = chainsData.all;
-          searchMessage = 'Search all chains by name or chain ID:';
       }
 
       if (availableChains.length === 0) {

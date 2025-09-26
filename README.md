@@ -13,7 +13,7 @@ npx create-interwoven-app
 The interactive mode will guide you through:
 
 - Project name selection
-- Network type choice (mainnet/testnet/all/custom)
+- Network type choice (mainnet/testnet/custom)
 - Chain selection with searchable autocomplete
 - Custom chain configuration (if needed)
 
@@ -99,7 +99,7 @@ npm run dev
 
 The interactive mode provides powerful chain selection features:
 
-- **Network Filtering**: Choose from mainnet, testnet, or all chains
+- **Network Filtering**: Choose from mainnet, testnet chains
 - **Searchable Interface**: Find chains by name or chain ID using autocomplete
 - **Custom Chains**: Configure your own chain with custom RPC, REST, gRPC, and indexer endpoints
 - **Smart Defaults**: Automatically suggests popular chains like `initiation-2` (testnet) or `interwoven-1` (mainnet)
